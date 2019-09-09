@@ -59,7 +59,7 @@ def get_cards_rows(cards_lists, icw, separator):
     for row_number in range(0, no_rows):
         row_str = ''
         for card_list in cards_lists:
-            last = card_list == cards_lists[-1]
+            last = card_list is cards_lists[-1]
             cell = get_card_cell(card_list, row_number, icw, separator, last)
             row_str += cell
         rows.append(row_str)
