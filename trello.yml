@@ -14,6 +14,15 @@ subcommands:
         query_params:
             fields: "name,url"
 
+    - card:
+        about: get card
+        path: cards/{{args.CARD_ID}}
+        args:
+            - CARD_ID:
+                help: card id
+                required: true
+        response_template: card.j2
+
     - cards:
         about: get cards
         path: boards/{{env.TRELLO_BOARD_ID}}/cards
@@ -50,9 +59,15 @@ subcommands:
                 short: n
                 long: name
                 takes_value: true
+            - close:
+                help: close card
+                short: c
+                long: close
+                takes_value: false
         query_params:
             idList: "{{args.list_id}}"
             name: "{{args.name}}"
+            closed: "{{args.close}}"
 
     - new_card:
         about: create a new card
@@ -74,12 +89,17 @@ subcommands:
 
     # Script commands
     - board:
-        about: print board situation
+        about: print board
         script: |
             export LISTS=$(trello lists)
             export CARDS=$(trello cards)
             export WIDTH=$(tput cols)
             python {{scmd.scmd_config_base_path}}/print_board.py
+
+    - open_board:
+        about: open board in browser
+        script: |
+            open "https://trello.com/b/{{env.TRELLO_BOARD_ID}}"
 
     - card_id_by_substring:
         about: get card id by name substring (returns first match)
@@ -89,6 +109,15 @@ subcommands:
                 required: true
         script: |
             echo $(trello cards | jq -r 'map(select(.name | test("{{args.CARD_NAME}}";"i")))|.[0].id')
+
+    - card_id_by_id_short:
+        about: get card id by its idShort (card number)
+        args:
+            - ID_SHORT:
+                help: Card number (idShort)
+                required: true
+        script: |
+            echo $(trello cards | jq -r 'map(select(.idShort == {{args.ID_SHORT}} ))|.[0].id')
 
     - list_id_by_substring:
         about: get list id by name substring (returns first match)
@@ -113,14 +142,33 @@ subcommands:
     - move:
         about: Move card to a list
         args:
-            - CARD_NAME:
-                help: Substring of the card name
+            - ID_SHORT:
+                help: Card number (idShort)
                 required: true
             - LIST_NAME:
                 help: Substring of the list name
                 required: true
         script: |
-            CARD_ID=$(trello card_id_by_substring "{{args.CARD_NAME}}")
+            CARD_ID=$(trello card_id_by_id_short "{{args.ID_SHORT}}")
             LIST_ID=$(trello list_id_by_substring "{{args.LIST_NAME}}")
             NULL=$(trello edit_card -q -l "$LIST_ID" "$CARD_ID")
             trello board
+
+    - show:
+        about: Show card info
+        args:
+            - ID_SHORT:
+                help: Card number (idShort)
+                required: true
+            - template:
+                help: template
+                short: t
+                long: template
+                takes_value: true
+        script: |
+            CARD_ID=$(trello card_id_by_id_short "{{args.ID_SHORT}}")
+            {% if args.template is defined %}
+                trello card -t {{args.template}} "$CARD_ID"
+            {% else %}
+                trello card "$CARD_ID"
+            {% endif %}
