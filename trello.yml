@@ -18,7 +18,7 @@ subcommands:
         about: get cards
         path: boards/{{env.TRELLO_BOARD_ID}}/cards
         query_params:
-            fields: "name,idList"
+            fields: "name,idList,idShort"
 
     - checklists:
         about: get board checklists

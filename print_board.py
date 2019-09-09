@@ -2,6 +2,15 @@ import os
 import json
 import math
 
+END = '\033[0m'
+BOLD = '\033[1m'
+RED = '\033[91m'
+BLUE = '\033[36m'
+
+
+def get_text_bold(text):
+    return f'{BOLD}{text}{END}'
+
 
 def get_header(lists, icw, separator):
     header = ''
@@ -10,7 +19,7 @@ def get_header(lists, icw, separator):
             header += f"{single_list.get('name'):^{icw}.{icw}}{separator}"
         else:
             header += f"{single_list.get('name'):^{icw}.{icw}}"
-    return header
+    return get_text_bold(header)
 
 
 def get_cards_lists(lists, cards):
@@ -22,14 +31,22 @@ def get_cards_lists(lists, cards):
     return cards_lists
 
 
+def get_card_number(card):
+    truncated_number = str(card.get('idShort'))[-4:]
+    return f'{truncated_number} '
+
+
 def get_card_cell(card_list, row_number, icw, separator, last):
     try:
         card = card_list[row_number]
+        sep = separator
         if last:
-            return f"{card.get('name'):{icw}.{icw}}"
-        else:
-            return f"{card.get('name'):{icw}.{icw}}{separator}"
-    except Exception:
+            sep = ''
+        card_number = get_card_number(card)
+        name_width = icw - len(card_number)
+        bold_card_bumber = get_text_bold(card_number)
+        return f"{bold_card_bumber}{card.get('name'):{name_width}.{name_width}}{sep}"
+    except IndexError:
         if last:
             return f"{' ':^{icw}.{icw}}"
         else:
@@ -60,7 +77,8 @@ icw = math.floor(width_without_separators / len(lists))
 header = get_header(lists, icw, separator)
 cards_lists = get_cards_lists(lists, cards)
 cards_rows = get_cards_rows(cards_lists, icw, separator)
+print('‾' * terminal_width)
 print(header)
-print('-' * terminal_width)
+print('_' * terminal_width)
 for row in cards_rows:
     print(row)
