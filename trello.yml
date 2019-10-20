@@ -9,58 +9,58 @@ query_params:
 subcommands:
     # Request commands
     - board_details:
-        about: get board
+        about: Get board
         path: boards/{{env.TRELLO_BOARD_ID}}
         query_params:
             fields: "name,url"
 
     - card:
-        about: get card
+        about: Get card
         path: cards/{{args.CARD_ID}}
         args:
             - CARD_ID:
-                help: card id
+                help: Card id
                 required: true
         response_template: card.j2
 
     - cards:
-        about: get cards
+        about: Get cards
         path: boards/{{env.TRELLO_BOARD_ID}}/cards
         query_params:
             fields: "name,idList,idShort"
 
     - checklists:
-        about: get board checklists
+        about: Get board checklists
         path: boards/{{env.TRELLO_BOARD_ID}}/checklists
         query_params:
             fields: "name"
 
     - lists:
-        about: get board lists
+        about: Get board lists
         path: boards/{{env.TRELLO_BOARD_ID}}/lists
         query_params:
             fields: "name"
 
     - edit_card:
-        about: edit a card
+        about: Edit a card
         path: cards/{{args.CARD_ID}}
         method: PUT
         args:
             - CARD_ID:
-                help: id of the card to edit
+                help: Id of the card to edit
                 required: true
             - list_id:
-                help: list id to move the card to
+                help: List id to move the card to
                 short: l
                 long: list_id
                 takes_value: true
             - name:
-                help: new name
+                help: New name
                 short: n
                 long: name
                 takes_value: true
             - close:
-                help: close card
+                help: Close card
                 short: c
                 long: close
                 takes_value: false
@@ -70,17 +70,17 @@ subcommands:
             closed: "{{args.close}}"
 
     - new_card:
-        about: create a new card
+        about: Create a new card
         path: cards
         method: POST
         args:
             - name:
-                help: new name
+                help: New name
                 short: n
                 long: name
                 takes_value: true
             - LIST_ID:
-                help: list id to move the card to
+                help: List id to move the card to
                 required: true
         query_params:
             idList: "{{args.LIST_ID}}"
@@ -89,7 +89,7 @@ subcommands:
 
     # Script commands
     - board:
-        about: print board
+        about: Print board
         script: |
             export LISTS=$(trello lists)
             export CARDS=$(trello cards)
@@ -97,12 +97,12 @@ subcommands:
             python {{scmd.scmd_config_base_path}}/print_board.py
 
     - open_board:
-        about: open board in browser
+        about: Open board in browser
         script: |
             open "https://trello.com/b/{{env.TRELLO_BOARD_ID}}"
 
     - card_id_by_substring:
-        about: get card id by name substring (returns first match)
+        about: Get card id by name substring (returns first match)
         args:
             - CARD_NAME:
                 help: Substring of the card name
@@ -111,7 +111,7 @@ subcommands:
             echo $(trello cards | jq -r 'map(select(.name | test("{{args.CARD_NAME}}";"i")))|.[0].id')
 
     - card_id_by_id_short:
-        about: get card id by its idShort (card number)
+        about: Get card id by its idShort (card number)
         args:
             - ID_SHORT:
                 help: Card number (idShort)
@@ -120,7 +120,7 @@ subcommands:
             echo $(trello cards | jq -r 'map(select(.idShort == {{args.ID_SHORT}} ))|.[0].id')
 
     - list_id_by_substring:
-        about: get list id by name substring (returns first match)
+        about: Get list id by name substring (returns first match)
         args:
             - LIST_NAME:
                 help: Substring of the list name
@@ -161,7 +161,7 @@ subcommands:
                 help: Card number (idShort)
                 required: true
             - template:
-                help: template
+                help: Template
                 short: t
                 long: template
                 takes_value: true
